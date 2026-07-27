@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>St. George Golf Trip | The Desert Cup 2026</title>
+  <meta name="description" content="The official website for the 2026 St. George Golf Trip." />
+  <style>
+    :root{
+      --ink:#17140f;
+      --paper:#f7f0e3;
+      --sand:#d9b98c;
+      --orange:#df5b2f;
+      --rust:#8f2f1d;
+      --sage:#63715c;
+      --night:#172129;
+      --gold:#f2c05f;
+      --white:#fffaf1;
+      --muted:#786f64;
+      --line:rgba(23,20,15,.13);
+      --shadow:0 20px 55px rgba(22,19,15,.14);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+    button,input{font:inherit}
+    .topbar{position:sticky;top:0;z-index:50;background:rgba(247,240,227,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .nav{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+    .brand{font-weight:900;letter-spacing:.08em;text-transform:uppercase;font-size:.9rem}
+    .brand span{color:var(--orange)}
+    .navlinks{display:flex;gap:20px;font-weight:700;font-size:.9rem}
+    .navlinks a:hover{color:var(--orange)}
+    .hero{min-height:88vh;display:grid;place-items:center;padding:70px 22px 50px;position:relative;overflow:hidden;background:
+      linear-gradient(180deg,rgba(10,18,22,.38),rgba(15,18,17,.78)),
+      url('images/sand-hollow.jpg') center 48%/cover no-repeat;color:var(--white)}
+    .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 18%,rgba(242,192,95,.25),transparent 28%);pointer-events:none}
+    .hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(transparent,rgba(17,25,31,.72));pointer-events:none}
+    .hero-inner{max-width:1050px;width:100%;position:relative;z-index:2;text-align:center}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;background:rgba(255,255,255,.07)}
+    h1{font-size:clamp(3.5rem,11vw,8.5rem);line-height:.84;margin:26px 0 18px;text-transform:uppercase;letter-spacing:-.07em;font-weight:950}
+    .hero h1 em{display:block;color:var(--gold);font-style:normal}
+    .tagline{font-size:clamp(1rem,2.2vw,1.35rem);max-width:680px;margin:0 auto 30px;color:#f6ead5;line-height:1.55}
+    .hero-meta{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+    .pill{padding:11px 16px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-weight:800}
+    .hero-cta{margin-top:32px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .btn{border:0;border-radius:12px;padding:13px 18px;font-weight:900;cursor:pointer;transition:.2s ease;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:var(--gold);color:#241a0b}.btn-primary:hover{transform:translateY(-2px)}
+    .btn-secondary{background:rgba(255,255,255,.08);color:white;border:1px solid rgba(255,255,255,.22)}
+    .section{padding:78px 22px}.container{max-width:1200px;margin:auto}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:22px;margin-bottom:30px}
+    .kicker{text-transform:uppercase;color:var(--orange);font-size:.75rem;letter-spacing:.18em;font-weight:900;margin-bottom:8px}
+    h2{font-size:clamp(2rem,5vw,4rem);line-height:.95;margin:0;text-transform:uppercase;letter-spacing:-.045em}
+    .section-copy{max-width:530px;color:var(--muted);line-height:1.65}
+    .score-wrap{background:var(--night);color:white;border-radius:26px;overflow:hidden;box-shadow:var(--shadow)}
+    .score-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:30px 34px;background:linear-gradient(100deg,#7b2c24,#172129 50%,#455f51)}
+    .team{text-align:center}.team-name{font-size:.77rem;text-transform:uppercase;letter-spacing:.18em;color:#e8dbc7;font-weight:900}.team-score{font-size:clamp(4rem,9vw,7rem);font-weight:950;line-height:1;margin-top:5px}
+    .versus{font-size:.75rem;letter-spacing:.18em;font-weight:900;color:#c6b9a5}
+    .score-bottom{padding:18px 28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#11191f;color:#cdbfae;font-size:.88rem}
+    .grid{display:grid;gap:20px}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:repeat(2,1fr)}
+    .card{background:rgba(255,255,255,.56);border:1px solid rgba(23,20,15,.1);border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(23,20,15,.06)}
+    .course-card{padding:0;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease}.course-card:hover{transform:translateY(-6px);box-shadow:0 24px 48px rgba(23,20,15,.15)}.course-art{height:240px;position:relative;background-size:cover;background-position:center}.course-art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(12,18,18,.78))}.course-art .photo-label{position:absolute;z-index:2;left:18px;bottom:16px;color:white;font-weight:900;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.45)}
+    .course-art.sand-hollow{background-image:url('images/sand-hollow.jpg')}
+    .course-art.ledges{background-image:url('https://i.ytimg.com/vi/hea0qxwfNvE/maxresdefault.jpg');background-position:center 55%}
+    .course-art.wolf-creek{background-image:url('images/wolf-creek.webp')}
+    .course-body{padding:22px}.course-rules{margin:18px 0 0;padding:15px 16px 13px;background:#f7eddd;border:1px solid rgba(83,50,25,.12);border-radius:14px}.course-rules h4{margin:0 0 9px;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:#8f3e23}.course-rules ul{margin:0;padding-left:18px;color:#5f554b;font-size:.86rem;line-height:1.5}.course-rules li+li{margin-top:6px}.day{font-weight:900;color:var(--orange);letter-spacing:.16em;text-transform:uppercase;font-size:.74rem}.course-name{font-size:1.75rem;font-weight:950;margin:6px 0 8px;text-transform:uppercase}.format{color:var(--muted);line-height:1.55}.rule-chip{display:inline-block;margin-top:15px;background:#efe2cd;border-radius:999px;padding:8px 11px;font-weight:800;font-size:.8rem}
+    .players{grid-template-columns:repeat(4,1fr)}
+    .player{padding:0;overflow:hidden}.avatar{aspect-ratio:3/4;background:linear-gradient(135deg,#cbb28f,#83533d);display:grid;place-items:center;font-size:3.5rem;font-weight:950;color:rgba(255,255,255,.8);position:relative;overflow:hidden}.avatar.has-photo{background-size:cover;background-position:center}.avatar.has-photo:before{content:"";position:absolute;inset:-16px;background:inherit;filter:blur(18px) brightness(.45);transform:scale(1.08)}.avatar img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;object-position:center;display:block}.avatar.has-photo:after{display:none}.avatar:not(.has-photo):after{content:"PHOTO";position:absolute;right:12px;bottom:10px;font-size:.65rem;letter-spacing:.15em}.player-body{padding:18px}.player-name{font-size:1.2rem;font-weight:950}.player-nickname{margin-top:3px;color:var(--orange);font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem}.player-meta{display:flex;justify-content:space-between;margin-top:9px;font-size:.82rem;color:var(--muted)}
+    .match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,.1)}.match:last-child{border-bottom:0}.match-side{font-weight:850}.match-side:last-child{text-align:right}.match-status{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.09);color:#d6c7b6}.live-panel{background:#172129;color:white}.live-panel h3{margin:0 0 12px;text-transform:uppercase}.admin{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.mini{padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:white;font-weight:800;cursor:pointer}
+    .pairings-shell{background:#172129;color:white;border-radius:24px;padding:24px;box-shadow:var(--shadow)}
+    .course-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .course-tab{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#eadfce;padding:10px 14px;border-radius:999px;font-weight:900;cursor:pointer}
+    .course-tab.active{background:var(--gold);color:#241a0b;border-color:var(--gold)}
+    .pairing-course{display:none}.pairing-course.active{display:block}
+    .pairing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .pairing-card{background:#11191f;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px}
+    .pairing-card h3{margin:0 0 14px;text-transform:uppercase;font-size:1rem;letter-spacing:.08em;color:var(--gold)}
+    .side-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;font-weight:900;color:#cdbfae;margin:12px 0 7px}
+    .pairing-select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#202b33;color:white;font-weight:750;margin-bottom:8px}
+    .pairing-select option{color:#111;background:white}
+    .versus-line{text-align:center;color:#8e9aa1;font-size:.72rem;font-weight:900;letter-spacing:.16em;margin:10px 0}
+    .pairings-actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}
+
+    .result-box{margin-top:16px;padding-top:15px;border-top:1px solid rgba(255,255,255,.1)}
+    .result-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;font-weight:900;color:var(--gold);margin-bottom:10px}
+    .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .result-field label{display:block;font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:#aeb8bd;margin:0 0 5px}
+    .result-select,.result-input,.result-notes{width:100%;box-sizing:border-box;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:#202b33;color:white;font-weight:700}
+    .result-notes{min-height:58px;resize:vertical;margin-top:9px;font-family:inherit}
+    .result-summary{margin-top:11px;padding:9px 10px;border-radius:9px;background:rgba(255,255,255,.06);font-size:.78rem;color:#d8cdbc;line-height:1.45}
+    .double-row{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.74rem;color:#e6dac8;font-weight:750}
+    .action-btn{padding:10px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:white;font-weight:850;cursor:pointer}
+    .action-btn.primary{background:var(--gold);color:#241a0b;border-color:var(--gold)}
+    .save-note{color:#cdbfae;font-size:.82rem}
+    .rules{columns:2;column-gap:26px}.rule{break-inside:avoid;margin:0 0 18px}.rule h3{margin:0 0 7px;font-size:1.05rem}.rule p{margin:0;color:var(--muted);line-height:1.58}
+    .footer{padding:50px 22px;background:#11191f;color:#dfd3c1;text-align:center}.footer strong{color:var(--gold)}
+    .notice{margin-top:18px;color:var(--muted);font-size:.82rem}
+    @media(max-width:900px){.navlinks{display:none}.grid-3,.players{grid-template-columns:repeat(2,1fr)}.pairing-grid{grid-template-columns:1fr}.rules{columns:1}.score-top{padding:24px 14px}.section-head{display:block}.section-copy{margin-top:12px}.hero{min-height:80vh}}
+    @media(max-width:600px){.grid-3,.grid-2,.players{grid-template-columns:1fr}.hero{padding-top:50px}h1{font-size:4.4rem}.team-score{font-size:4rem}.score-top{grid-template-columns:1fr 40px 1fr}.section{padding:58px 16px}.nav{padding:12px 16px}.card{border-radius:16px}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav">
+      <a class="brand" href="#top">St. George <span>2026</span></a>
+      <div class="navlinks">
+        <a href="#cup">Live Cup</a><a href="#schedule">Schedule</a><a href="#pairings">Pairings</a><a href="#players">Players</a><a href="#rules">Rules</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="eyebrow">🏜️ St. George, Utah · August 13–16</div>
+        <h1>The <em>Desert Cup</em></h1>
+        <p class="tagline">Twelve golfers. Two teams. Three rounds in the desert. One weekend of questionable decisions and highly disputed scorekeeping.</p>
+        <div class="hero-meta"><span class="pill">12 Players</span><span class="pill">3 Courses</span><span class="pill">18 Points Up For Grabs*</span></div>
+        <div class="hero-cta"><a class="btn btn-primary" href="#cup">View Live Cup</a><a class="btn btn-secondary" href="#schedule">See the Courses</a></div>
+      </div>
+    </section>
+
+    <section class="section" id="cup">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="kicker">Tournament Central</div><h2>Live Cup</h2></div>
+          <p class="section-copy">This demo scoreboard is interactive. Use the controls below to simulate updating team points during the trip.</p>
+        </div>
+        <div class="score-wrap">
+          <div class="score-top">
+            <div class="team"><div class="team-name" id="teamAName">Team One</div><div class="team-score" id="teamAScore">0</div></div>
+            <div class="versus">VS</div>
+            <div class="team"><div class="team-name" id="teamBName">Team Two</div><div class="team-score" id="teamBScore">0</div></div>
+          </div>
+          <div class="score-bottom"><span>Next: Sand Hollow · Friday</span><span>First team to the winning total takes the cup</span></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:20px">
+          <div class="card live-panel">
+            <h3>Friday Matches · Sand Hollow</h3>
+            <div class="match"><div class="match-side">Pairing A</div><div class="match-status">Upcoming</div><div class="match-side">Pairing A</div></div>
+            <div class="match"><div class="match-side">Pairing B</div><div class="match-status">Upcoming</div><div class="match-side">Pairing B</div></div>
+            <div class="match"><div class="match-side">Pairing C</div><div class="match-status">Upcoming</div><div class="match-side">Pairing C</div></div>
+          </div>
+          <div class="card live-panel">
+            <h3>Scoreboard Demo Controls</h3>
+            <p style="color:#cdbfae;line-height:1.55">These buttons demonstrate how the live site could work. The final version can be connected to a Google Sheet for phone-friendly updates.</p>
+            <div class="admin">
+              <button class="mini" onclick="addPoint('A',1)">Team One +1</button>
+              <button class="mini" onclick="addPoint('A',.5)">Team One +½</button>
+              <button class="mini" onclick="addPoint('B',1)">Team Two +1</button>
+              <button class="mini" onclick="addPoint('B',.5)">Team Two +½</button>
+              <button class="mini" onclick="resetScores()">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="schedule" style="background:#eee1ce">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="kicker">The Gauntlet</div><h2>Three Days. Three Tests.</h2></div>
+          <p class="section-copy">Tee times can be dropped in later. The format and special rules are already built into each round.</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card course-card"><div class="course-art sand-hollow" role="img" aria-label="Sand Hollow Golf Resort in Southern Utah"><span class="photo-label">Sand Hollow · Hurricane, Utah</span></div><div class="course-body"><div class="day">Friday · August 14</div><div class="course-name">Sand Hollow</div><div class="format">2 vs. 2 aggregate score match play. Add both partners’ scores on each hole and compare the totals.</div><div class="course-rules"><h4>Course Rules</h4><ul><li>One point for the front nine, one for the back nine, and one for the overall match.</li><li>Tied holes do not carry over or stack.</li><li>Each team gets one Barney Ball for tee-shot mulligans. Once used, it must finish the hole.</li><li>If the Barney Ball may be lost, the team has three minutes to find it or its mulligan powers are gone.</li></ul></div><span class="rule-chip">🎱 Barney Ball Returns</span></div></article>
+          <article class="card course-card"><div class="course-art ledges" role="img" aria-label="The Ledges Golf Club in St. George, Utah"><span class="photo-label">The Ledges · St. George, Utah</span></div><div class="course-body"><div class="day">Saturday · August 15</div><div class="course-name">The Ledges</div><div class="format">The gimmick round. Final format pending the group vote: front-nine scramble/back-nine alternate shot or an 18-hole scramble.</div><div class="course-rules"><h4>Course Rules</h4><ul><li>One point for the front nine, one for the back nine, and one for the overall match.</li><li>Each team may use one reverse mulligan on any opposing drive, approach, chip, or putt.</li><li>Each player may choose one hole to play from the forward tees.</li><li>Partners cannot use the forward-tee benefit on the same hole.</li></ul></div><span class="rule-chip">↩️ Reverse Mulligan</span></div></article>
+          <article class="card course-card"><div class="course-art wolf-creek" role="img" aria-label="Wolf Creek Golf Club in Mesquite, Nevada"><span class="photo-label">Wolf Creek · Mesquite, Nevada</span></div><div class="course-body"><div class="day">Sunday · August 16</div><div class="course-name">Wolf Creek</div><div class="format">2 vs. 2 best ball. Only the lower score between the two partners counts on each hole.</div><div class="course-rules"><h4>Course Rules</h4><ul><li>One point for the front nine, one for the back nine, and one for the overall match.</li><li>Pairings follow draft order: picks 1–2, 3–4, and 5–6 play together.</li><li>Equivalent draft-order pairings face one another across the two teams.</li><li>The duo delivering the biggest beatdown of the day earns double points.</li></ul></div><span class="rule-chip">⚡ Double-Point Beatdown</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pairings">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="kicker">Captain's Room</div><h2>Build the Pairings</h2></div>
+          <p class="section-copy">Choose the four players in each 2 vs. 2 match for every course. Selections save automatically on this device.</p>
+        </div>
+        <div class="pairings-shell">
+          <div class="course-tabs">
+            <button class="course-tab active" data-course="sand">Friday · Sand Hollow</button>
+            <button class="course-tab" data-course="ledges">Saturday · The Ledges</button>
+            <button class="course-tab" data-course="wolf">Sunday · Wolf Creek</button>
+          </div>
+          <div id="pairingsContainer"></div>
+          <div class="pairings-actions">
+            <span class="save-note" id="pairingsSaveNote">Changes save automatically.</span>
+            <button class="mini" onclick="resetPairings()">Reset All Pairings</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="players">
+      <div class="container">
+        <div class="section-head"><div><div class="kicker">The Field</div><h2>Meet the 12</h2></div><p class="section-copy">The official 12-player field is set. Photos, handicaps, team assignments, and scouting reports can be added next.</p></div>
+        <div class="grid players" id="playerGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="rules" style="background:#fff8ec">
+      <div class="container">
+        <div class="section-head"><div><div class="kicker">Official-ish Handbook</div><h2>Rules of Engagement</h2></div><p class="section-copy">No handicap adjustments. No repeated pairings. No sympathy putts unless the opposition gives them.</p></div>
+        <div class="rules">
+          <div class="rule card"><h3>No Handicaps</h3><p>All formats are played straight up. No match or score is adjusted for handicap.</p></div>
+          <div class="rule card"><h3>Team Draft</h3><p>Glaz and Coombs captain two teams of six. The draft is snake style, with Glaz choosing whether to select first or second.</p></div>
+          <div class="rule card"><h3>Friday & Saturday Pairings</h3><p>Captains submit A, B, and C pairings for Sand Hollow and The Ledges. A, B, and C do not need to correspond to skill level.</p></div>
+          <div class="rule card"><h3>Captain Pairing Restriction</h3><p>For Friday and Saturday, a captain cannot pair himself with his first or second draft pick. No two-player pairing may repeat during the trip.</p></div>
+          <div class="rule card"><h3>Gimmes</h3><p>All putts must be holed unless the opposing team explicitly concedes the putt.</p></div>
+          <div class="rule card"><h3>Out of Bounds</h3><p>Red stakes use normal lateral-hazard relief. For white stakes, replay from the tee hitting three or take lateral relief and play the next shot as four.</p></div>
+        </div>
+        <p class="notice">*Point totals and final winning threshold will be confirmed once the Ledges format and Wolf Creek bonus math are finalized.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><strong>THE DESERT CUP 2026</strong><br>St. George, Utah · August 13–16</footer>
+
+  <script>
+    const players = [
+      {name:'Mike O\'Brien', nickname:'MOB', initials:'MO', hcp:'TBD', team:'Undrafted'},
+      {name:'Nate Long', nickname:'Tank', initials:'NL', hcp:'TBD', team:'Undrafted', photo:'images/nate-long-tank.jpg'},
+      {name:'Nick Glazewski', nickname:'Glaz', initials:'NG', hcp:'TBD', team:'Captain', photo:'images/nick-glazewski-glaz.png'},
+      {name:'Matt Hoffeditz', nickname:'Hoff', initials:'MH', hcp:'TBD', team:'Undrafted', photo:'images/matt-hoffeditz-hoff.jpg'},
+      {name:'Bubba Laguna', nickname:'Bubs', initials:'BL', hcp:'TBD', team:'Undrafted', photo:'images/bubba-laguna-bubs.jpeg'},
+      {name:'Chad Casebeer', nickname:'TBD', initials:'CC', hcp:'TBD', team:'Undrafted'},
+      {name:'Alex Peponis', nickname:'Pep', initials:'AP', hcp:'TBD', team:'Undrafted', photo:'images/alex-peponis-pep.png'},
+      {name:'Aaron Schramm', nickname:'Ron', initials:'AS', hcp:'TBD', team:'Undrafted', photo:'images/aaron-schramm-ron.jpg'},
+      {name:'Grant Rosenbaum', nickname:'TBD', initials:'GR', hcp:'TBD', team:'Undrafted', photo:'images/grant-rosenbaum.png'},
+      {name:'Auvied Homaizad', nickname:'TBD', initials:'AH', hcp:'TBD', team:'Undrafted'},
+      {name:'Connor Coombs', nickname:'Coach', initials:'CO', hcp:'TBD', team:'Captain', photo:'images/connor-coombs-coach.png'},
+      {name:'Brad Rustik', nickname:'Rusty', initials:'BR', hcp:'TBD', team:'Undrafted', photo:'images/brad-rustik-rusty.jpg'}
+    ];
+    document.getElementById('playerGrid').innerHTML = players.map(p=>`<article class="card player"><div class="avatar ${p.photo ? 'has-photo' : ''}" ${p.photo ? `style="background-image:url('${p.photo}')"` : ''}>${p.photo ? `<img src="${p.photo}" alt="${p.name} (${p.nickname})">` : p.initials}</div><div class="player-body"><div class="player-name">${p.name}</div><div class="player-nickname">“${p.nickname}”</div><div class="player-meta"><span>HCP: ${p.hcp}</span><span>${p.team}</span></div></div></article>`).join('');
+    let scoreA=0,scoreB=0;
+    function render(){document.getElementById('teamAScore').textContent=scoreA;document.getElementById('teamBScore').textContent=scoreB;localStorage.setItem('desertCupScores',JSON.stringify({scoreA,scoreB}));}
+    function addPoint(team,val){if(team==='A')scoreA+=val;else scoreB+=val;render()}
+    function resetScores(){scoreA=0;scoreB=0;render()}
+    try{const saved=JSON.parse(localStorage.getItem('desertCupScores'));if(saved){scoreA=saved.scoreA||0;scoreB=saved.scoreB||0;render()}}catch(e){}
+
+    const courseInfo = {
+      sand:{title:'Sand Hollow',subtitle:'2 v 2 Aggregate Match Play'},
+      ledges:{title:'The Ledges',subtitle:'2 v 2 Gimmick Round'},
+      wolf:{title:'Wolf Creek',subtitle:'2 v 2 Best Ball'}
+    };
+    const emptyPairings = () => ({
+      sand:Array.from({length:3},()=>['','','','']),
+      ledges:Array.from({length:3},()=>['','','','']),
+      wolf:Array.from({length:3},()=>['','','',''])
+    });
+    let pairings = emptyPairings();
+    try{const saved=JSON.parse(localStorage.getItem('desertCupPairings'));if(saved) pairings={...pairings,...saved};}catch(e){}
+
+    const emptyResults = () => ({
+      sand:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false})),
+      ledges:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false})),
+      wolf:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false}))
+    });
+    let results=emptyResults();
+    try{const saved=JSON.parse(localStorage.getItem('desertCupResults'));if(saved) results={...results,...saved};}catch(e){}
+
+    function resultOptions(selected){
+      return [['','Not entered'],['one','Team One'],['two','Team Two'],['tie','Tied']].map(([v,l])=>`<option value="${v}" ${selected===v?'selected':''}>${l}</option>`).join('');
+    }
+    function pointsFor(value){return value==='one'?[1,0]:value==='two'?[0,1]:value==='tie'?[.5,.5]:[0,0]}
+    function matchPoints(course,mi){
+      const r=results[course][mi]; let a=0,b=0;
+      [r.front,r.back,r.overall].forEach(v=>{const p=pointsFor(v);a+=p[0];b+=p[1]});
+      if(course==='wolf'&&r.double){a*=2;b*=2}
+      return [a,b];
+    }
+    function resultSummary(course,mi){
+      const r=results[course][mi], p=matchPoints(course,mi);
+      const entered=[r.front,r.back,r.overall].filter(Boolean).length;
+      if(!entered) return 'No result recorded yet.';
+      let text=`Recorded points: Team One ${p[0]} – ${p[1]} Team Two`;
+      if(r.margin) text+=` · Margin: ${r.margin}`;
+      if(course==='wolf'&&r.double) text+=' · Double-point match';
+      return text;
+    }
+    function updateResult(course,mi,field,value){
+      results[course][mi][field]=field==='double'?value==='true':value;
+      localStorage.setItem('desertCupResults',JSON.stringify(results));
+      const active=course; renderPairings(); switchCourse(active);
+      const note=document.getElementById('pairingsSaveNote'); note.textContent='Result saved ✓'; setTimeout(()=>note.textContent='Pairings and results save automatically on this device.',1200);
+    }
+    function syncResultsToCup(){
+      let a=0,b=0; Object.keys(results).forEach(c=>results[c].forEach((_,mi)=>{const p=matchPoints(c,mi);a+=p[0];b+=p[1]}));
+      scoreA=a;scoreB=b;render();
+      document.getElementById('pairingsSaveNote').textContent=`Live cup updated: ${a} – ${b}`;
+    }
+    function resetResults(){
+      results=emptyResults(); localStorage.removeItem('desertCupResults'); renderPairings();
+      document.getElementById('pairingsSaveNote').textContent='All match results cleared.';
+    }
+
+    function playerOptions(selected, course, matchIndex, slotIndex){
+      const used = new Set();
+      pairings[course].forEach((match,mi)=>match.forEach((name,si)=>{if(name && !(mi===matchIndex && si===slotIndex)) used.add(name)}));
+      return `<option value="">Select player</option>` + players.map(p=>{
+        const disabled = used.has(p.name) && p.name!==selected;
+        return `<option value="${p.name}" ${p.name===selected?'selected':''} ${disabled?'disabled':''}>${p.name} (${p.nickname})</option>`;
+      }).join('');
+    }
+
+    function renderPairings(){
+      const container=document.getElementById('pairingsContainer');
+      container.innerHTML=Object.entries(courseInfo).map(([key,info])=>`<div class="pairing-course ${key==='sand'?'active':''}" data-panel="${key}">
+        <div style="margin-bottom:16px"><strong style="font-size:1.25rem">${info.title}</strong><div style="color:#cdbfae;margin-top:3px">${info.subtitle}</div></div>
+        <div class="pairing-grid">${pairings[key].map((m,mi)=>`<div class="pairing-card"><h3>Match ${String.fromCharCode(65+mi)}</h3>
+          <div class="side-label">Team One</div>
+          <select class="pairing-select" onchange="setPairing('${key}',${mi},0,this.value)">${playerOptions(m[0],key,mi,0)}</select>
+          <select class="pairing-select" onchange="setPairing('${key}',${mi},1,this.value)">${playerOptions(m[1],key,mi,1)}</select>
+          <div class="versus-line">VERSUS</div>
+          <div class="side-label">Team Two</div>
+          <select class="pairing-select" onchange="setPairing('${key}',${mi},2,this.value)">${playerOptions(m[2],key,mi,2)}</select>
+          <select class="pairing-select" onchange="setPairing('${key}',${mi},3,this.value)">${playerOptions(m[3],key,mi,3)}</select>
+          <div class="result-box">
+            <div class="result-title">Match Result</div>
+            <div class="result-grid">
+              <div class="result-field"><label>Status</label><select class="result-select" onchange="updateResult('${key}',${mi},'status',this.value)"><option value="scheduled" ${results[key][mi].status==='scheduled'?'selected':''}>Scheduled</option><option value="live" ${results[key][mi].status==='live'?'selected':''}>In progress</option><option value="final" ${results[key][mi].status==='final'?'selected':''}>Final</option></select></div>
+              <div class="result-field"><label>Final margin</label><input class="result-input" value="${results[key][mi].margin||''}" placeholder="e.g. 3 & 2" onchange="updateResult('${key}',${mi},'margin',this.value)"></div>
+              <div class="result-field"><label>Front 9 point</label><select class="result-select" onchange="updateResult('${key}',${mi},'front',this.value)">${resultOptions(results[key][mi].front)}</select></div>
+              <div class="result-field"><label>Back 9 point</label><select class="result-select" onchange="updateResult('${key}',${mi},'back',this.value)">${resultOptions(results[key][mi].back)}</select></div>
+              <div class="result-field" style="grid-column:1/-1"><label>Overall match point</label><select class="result-select" onchange="updateResult('${key}',${mi},'overall',this.value)">${resultOptions(results[key][mi].overall)}</select></div>
+            </div>
+            ${key==='wolf'?`<label class="double-row"><input type="checkbox" ${results[key][mi].double?'checked':''} onchange="updateResult('${key}',${mi},'double',String(this.checked))"> Biggest beatdown: double this match’s points</label>`:''}
+            <textarea class="result-notes" placeholder="Optional note, e.g. Tank made a 25-footer on 18" onchange="updateResult('${key}',${mi},'notes',this.value)">${results[key][mi].notes||''}</textarea>
+            <div class="result-summary">${resultSummary(key,mi)}</div>
+          </div>
+        </div>`).join('')}</div>
+      </div>`).join('');
+      document.querySelectorAll('.course-tab').forEach(btn=>btn.onclick=()=>switchCourse(btn.dataset.course));
+    }
+    function switchCourse(course){
+      document.querySelectorAll('.course-tab').forEach(b=>b.classList.toggle('active',b.dataset.course===course));
+      document.querySelectorAll('.pairing-course').forEach(p=>p.classList.toggle('active',p.dataset.panel===course));
+    }
+    function setPairing(course,matchIndex,slotIndex,value){
+      pairings[course][matchIndex][slotIndex]=value;
+      localStorage.setItem('desertCupPairings',JSON.stringify(pairings));
+      const active=course;
+      renderPairings();
+      switchCourse(active);
+      const note=document.getElementById('pairingsSaveNote'); note.textContent='Saved ✓'; setTimeout(()=>note.textContent='Changes save automatically.',1200);
+    }
+    function resetPairings(){
+      pairings=emptyPairings();
+      localStorage.removeItem('desertCupPairings');
+      renderPairings();
+    }
+    renderPairings();
+  </script>
+</body>
+</html>
