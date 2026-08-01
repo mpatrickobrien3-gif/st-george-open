@@ -230,16 +230,16 @@
     const players = [
       {name:'Mike O\'Brien', nickname:'MOB', initials:'MO', hcp:'12', team:'Undrafted', photo:'images/mike-obrien-mob.jpeg'},
       {name:'Nate Long', nickname:'Tank', initials:'NL', hcp:'11–15', team:'Undrafted', photo:'images/nate-long-tank.jpg'},
-      {name:'Nick Glazewski', nickname:'Glaz', initials:'NG', hcp:'TBD', team:'Captain', photo:'images/nick-glazewski-glaz.png'},
-      {name:'Matt Hoffeditz', nickname:'Hoff', initials:'MH', hcp:'TBD', team:'Undrafted', photo:'images/matt-hoffeditz-hoff.jpg'},
-      {name:'Bubba Laguna', nickname:'Bubs', initials:'BL', hcp:'TBD', team:'Undrafted', photo:'images/bubba-laguna-bubs.jpeg'},
-      {name:'Chad Casebeer', nickname:'TBD', initials:'CC', hcp:'TBD', team:'Undrafted', photo:'images/chad-casebeer.png'},
+      {name:'Nick Glazewski', nickname:'Glaz', initials:'NG', hcp:'7–8', team:'Captain', photo:'images/nick-glazewski-glaz.png'},
+      {name:'Matt Hoffeditz', nickname:'Hoff', initials:'MH', hcp:'12', team:'Undrafted', photo:'images/matt-hoffeditz-hoff.jpg'},
+      {name:'Bubba Laguna', nickname:'Bubs', initials:'BL', hcp:'20–23', team:'Undrafted', photo:'images/bubba-laguna-bubs.jpeg'},
+      {name:'Chad Casebeer', nickname:'TBD', initials:'CC', hcp:'13', team:'Undrafted', photo:'images/chad-casebeer.png'},
       {name:'Alex Peponis', nickname:'Pep', initials:'AP', hcp:'16–18', team:'Undrafted', photo:'images/alex-peponis-pep.png'},
-      {name:'Aaron Schramm', nickname:'Ron', initials:'AS', hcp:'TBD', team:'Undrafted', photo:'images/aaron-schramm-ron.jpg'},
-      {name:'Grant Rosenbaum', nickname:'TBD', initials:'GR', hcp:'TBD', team:'Undrafted', photo:'images/grant-rosenbaum.png'},
-      {name:'Auvied Homaizad', nickname:'TBD', initials:'AH', hcp:'11–15', team:'Undrafted', photo:'images/auvied-homaizad.jpg'},
-      {name:'Connor Coombs', nickname:'Coach', initials:'CO', hcp:'TBD', team:'Captain', photo:'images/connor-coombs-coach.png'},
-      {name:'Brad Rustik', nickname:'Rusty', initials:'BR', hcp:'TBD', team:'Undrafted', photo:'images/brad-rustik-rusty.jpg'}
+      {name:'Aaron Schramm', nickname:'Ron', initials:'AS', hcp:'the limit does not exist', team:'Undrafted', photo:'images/aaron-schramm-ron.jpg'},
+      {name:'Grant Rosenbaum', nickname:'TBD', initials:'GR', hcp:'10–14', team:'Undrafted', photo:'images/grant-rosenbaum.png'},
+      {name:'Auvied Homaizad', nickname:'TBD', initials:'AH', hcp:'12–15', team:'Undrafted', photo:'images/auvied-homaizad-tbd.png'},
+      {name:'Connor Coombs', nickname:'Coach', initials:'CO', hcp:'7–8', team:'Captain', photo:'images/connor-coombs-coach.png'},
+      {name:'Brad Rustik', nickname:'Rusty', initials:'BR', hcp:'23', team:'Undrafted', photo:'images/brad-rustik-rusty.jpg'}
     ];
     document.getElementById('playerGrid').innerHTML = players.map(p=>`<article class="card player"><div class="avatar ${p.photo ? 'has-photo' : ''}" ${p.photo ? `style="background-image:url('${p.photo}')"` : ''}>${p.photo ? `<img src="${p.photo}" alt="${p.name} (${p.nickname})">` : p.initials}</div><div class="player-body"><div class="player-name">${p.name}</div><div class="player-nickname">“${p.nickname}”</div><div class="player-meta"><span>HCP: ${p.hcp}</span><span>${p.team}</span></div></div></article>`).join('');
     let scoreA=0,scoreB=0;
