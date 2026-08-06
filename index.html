@@ -99,9 +99,34 @@
     .rules{columns:2;column-gap:26px}.rule{break-inside:avoid;margin:0 0 18px}.rule h3{margin:0 0 7px;font-size:1.05rem}.rule p{margin:0;color:var(--muted);line-height:1.58}
     .footer{padding:50px 22px;background:#11191f;color:#dfd3c1;text-align:center}.footer strong{color:var(--gold)}
     .notice{margin-top:18px;color:var(--muted);font-size:.82rem}
+
+    .admin-auth{max-width:1200px;margin:0 auto;padding:14px 22px 0;display:flex;justify-content:flex-end;gap:10px;align-items:center}
+    .admin-status{font-size:.78rem;color:var(--muted);font-weight:800}
+    .admin-login-btn,.admin-logout-btn{border:1px solid var(--line);background:#fffaf1;color:var(--ink);padding:8px 11px;border-radius:9px;font-weight:900;cursor:pointer}
+    .auth-modal{position:fixed;inset:0;z-index:100;background:rgba(10,15,18,.72);display:none;place-items:center;padding:20px}
+    .auth-modal.open{display:grid}
+    .auth-card{width:min(420px,100%);background:var(--paper);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+    .auth-card h3{margin:0 0 8px;text-transform:uppercase}
+    .auth-card p{margin:0 0 16px;color:var(--muted);line-height:1.5}
+    .auth-card input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:white}
+    .auth-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+    .auth-error{min-height:20px;color:#9b2f21;font-size:.82rem;margin-top:8px}
+    .admin-only{display:none!important}
+    body.is-admin .admin-only{display:flex!important}
+    body.is-admin select.admin-only,
+    body.is-admin input.admin-only,
+    body.is-admin textarea.admin-only{display:block!important}
+    body:not(.is-admin) .pairing-select,
+    body:not(.is-admin) .result-select,
+    body:not(.is-admin) .result-input,
+    body:not(.is-admin) .result-notes,
+    body:not(.is-admin) .double-row{pointer-events:none;opacity:.78}
+    .sync-status{font-size:.78rem;color:#cdbfae;margin-top:10px}
+
     @media(max-width:900px){.navlinks{display:none}.grid-3,.players{grid-template-columns:repeat(2,1fr)}.pairing-grid{grid-template-columns:1fr}.rules{columns:1}.score-top{padding:24px 14px}.section-head{display:block}.section-copy{margin-top:12px}.hero{min-height:80vh}}
     @media(max-width:600px){.grid-3,.grid-2,.players{grid-template-columns:1fr}.hero{padding-top:50px}h1{font-size:4.4rem}.team-score{font-size:4rem}.score-top{grid-template-columns:1fr 40px 1fr}.section{padding:58px 16px}.nav{padding:12px 16px}.card{border-radius:16px}}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header class="topbar">
@@ -112,6 +137,13 @@
       </div>
     </nav>
   </header>
+
+  <div class="admin-auth">
+    <span class="admin-status" id="adminStatus">Public view</span>
+    <button class="admin-login-btn" id="adminLoginBtn" type="button">Admin Login</button>
+    <button class="admin-logout-btn" id="adminLogoutBtn" type="button" style="display:none">Log Out</button>
+  </div>
+
 
   <main id="top">
     <section class="hero">
@@ -147,9 +179,9 @@
             <div class="match"><div class="match-side">Pairing C</div><div class="match-status">Upcoming</div><div class="match-side">Pairing C</div></div>
           </div>
           <div class="card live-panel">
-            <h3>Scoreboard Demo Controls</h3>
-            <p style="color:#cdbfae;line-height:1.55">These buttons demonstrate how the live site could work. The final version can be connected to a Google Sheet for phone-friendly updates.</p>
-            <div class="admin">
+            <h3>Scoreboard Controls</h3>
+            <p style="color:#cdbfae;line-height:1.55">Scores are shared across all devices. Only the signed-in administrator can make changes.</p>
+            <div class="admin admin-only">
               <button class="mini" onclick="addPoint('A',1)">The Utes +1</button>
               <button class="mini" onclick="addPoint('A',.5)">The Utes +½</button>
               <button class="mini" onclick="addPoint('B',1)">Team Analea Clark +1</button>
@@ -189,8 +221,8 @@
           </div>
           <div id="pairingsContainer"></div>
           <div class="pairings-actions">
-            <span class="save-note" id="pairingsSaveNote">Changes save automatically.</span>
-            <button class="mini" onclick="resetPairings()">Reset All Pairings</button>
+            <span class="save-note" id="pairingsSaveNote">Loading shared tournament data…</span>
+            <button class="mini admin-only" onclick="resetPairings()">Reset All Pairings</button>
           </div>
         </div>
       </div>
@@ -235,9 +267,29 @@
 
 </main>
 
+  
+  <div class="auth-modal" id="authModal" aria-hidden="true">
+    <div class="auth-card">
+      <h3>Admin Login</h3>
+      <p>Sign in with your Supabase email and password to edit scores, pairings, and results.</p>
+      <input id="adminEmail" type="email" autocomplete="username" placeholder="Email address">
+      <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Password">
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-actions">
+        <button class="admin-login-btn" id="cancelLoginBtn" type="button">Cancel</button>
+        <button class="btn btn-primary" id="submitLoginBtn" type="button">Sign In</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer"><strong>THE ST GEORGE OPEN 2026</strong><br>St. George, Utah · August 13–16</footer>
 
   <script>
+    const SUPABASE_URL = 'https://nwpyqligjwxrqhkzrbsx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53cHlxbGlnand4cnFoa3pyYnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NzAwNzUsImV4cCI6MjEwMTU0NjA3NX0.f3u35CeIRivzAVl0UIoAXgWqFXjdJewyQwvucSxiuUg';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const TOURNAMENT_ID = 1;
+
     const players = [
       {name:'Mike O\'Brien', nickname:'MOB', initials:'MO', hcp:'12', team:'The Utes', draftPick:1, photo:'images/mike-obrien-mob.jpeg'},
       {name:'Nate Long', nickname:'Tank', initials:'NL', hcp:'11–15', team:'Team Analea Clark', draftPick:6, photo:'images/nate-long-tank.jpg'},
@@ -252,23 +304,13 @@
       {name:'Connor Coombs', nickname:'Coach', initials:'CO', hcp:'7–8', team:'Team Analea Clark', role:'Captain', photo:'images/connor-coombs-coach.png'},
       {name:'Brad Rustik', nickname:'Rusty', initials:'BR', hcp:'23', team:'Team Analea Clark', draftPick:7, photo:'images/brad-rustik-rusty.jpg'}
     ];
-    function playerCard(p){
-      const draftLabel = p.role || (p.draftPick ? `Draft Pick #${p.draftPick}` : '');
-      return `<article class="card player"><div class="avatar ${p.photo ? 'has-photo' : ''}" ${p.photo ? `style="background-image:url('${p.photo}')"` : ''}>${p.photo ? `<img src="${p.photo}" alt="${p.name} (${p.nickname})">` : p.initials}</div><div class="player-body"><div class="player-name">${p.name}</div><div class="player-nickname">“${p.nickname}”</div><div class="player-meta"><span>HCP: ${p.hcp}</span><span>${draftLabel}</span></div></div></article>`;
-    }
-    document.getElementById('utesGrid').innerHTML = players.filter(p=>p.team==='The Utes').map(playerCard).join('');
-    document.getElementById('analeaGrid').innerHTML = players.filter(p=>p.team==='Team Analea Clark').map(playerCard).join('');
-    let scoreA=0,scoreB=0;
-    function render(){document.getElementById('teamAScore').textContent=scoreA;document.getElementById('teamBScore').textContent=scoreB;localStorage.setItem('desertCupScores',JSON.stringify({scoreA,scoreB}));}
-    function addPoint(team,val){if(team==='A')scoreA+=val;else scoreB+=val;render()}
-    function resetScores(){scoreA=0;scoreB=0;render()}
-    try{const saved=JSON.parse(localStorage.getItem('desertCupScores'));if(saved){scoreA=saved.scoreA||0;scoreB=saved.scoreB||0;render()}}catch(e){}
 
     const courseInfo = {
       sand:{title:'Sand Hollow',subtitle:'2 v 2 Aggregate Match Play'},
       ledges:{title:'The Ledges',subtitle:'2 v 2 Gimmick Round'},
       wolf:{title:'Wolf Creek',subtitle:'2 v 2 Best Ball'}
     };
+
     const emptyPairings = () => ({
       sand:Array.from({length:3},()=>['','','','']),
       ledges:Array.from({length:3},()=>['','','','']),
@@ -278,32 +320,155 @@
         ['Alex Peponis','Bubba Laguna','Brad Rustik','Aaron Schramm']
       ]
     });
-    let pairings = emptyPairings();
-    try{const saved=JSON.parse(localStorage.getItem('stGeorgeOpenPairingsV2'));if(saved) pairings={...pairings,...saved};}catch(e){}
 
     const emptyResults = () => ({
       sand:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false})),
       ledges:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false})),
       wolf:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false}))
     });
-    let results=emptyResults();
-    try{const saved=JSON.parse(localStorage.getItem('desertCupResults'));if(saved) results={...results,...saved};}catch(e){}
+
+    let scoreA = 0;
+    let scoreB = 0;
+    let pairings = emptyPairings();
+    let results = emptyResults();
+    let isAdmin = false;
+    let activeCourse = 'sand';
+    let saveTimer = null;
+
+    function playerCard(p){
+      const draftLabel = p.role || (p.draftPick ? `Draft Pick #${p.draftPick}` : '');
+      return `<article class="card player"><div class="avatar ${p.photo ? 'has-photo' : ''}" ${p.photo ? `style="background-image:url('${p.photo}')"` : ''}>${p.photo ? `<img src="${p.photo}" alt="${p.name} (${p.nickname})">` : p.initials}</div><div class="player-body"><div class="player-name">${p.name}</div><div class="player-nickname">“${p.nickname}”</div><div class="player-meta"><span>HCP: ${p.hcp}</span><span>${draftLabel}</span></div></div></article>`;
+    }
+
+    document.getElementById('utesGrid').innerHTML = players.filter(p=>p.team==='The Utes').map(playerCard).join('');
+    document.getElementById('analeaGrid').innerHTML = players.filter(p=>p.team==='Team Analea Clark').map(playerCard).join('');
+
+    function updateScoreDisplay(){
+      document.getElementById('teamAScore').textContent = scoreA;
+      document.getElementById('teamBScore').textContent = scoreB;
+    }
+
+    function setSaveNote(message){
+      const note = document.getElementById('pairingsSaveNote');
+      if(note) note.textContent = message;
+    }
+
+    async function loadTournamentState(){
+      setSaveNote('Loading shared tournament data…');
+      const { data, error } = await db
+        .from('tournament')
+        .select('scoreA,scoreB,pairings,results')
+        .eq('id', TOURNAMENT_ID)
+        .single();
+
+      if(error){
+        console.error('Supabase load error:', error);
+        setSaveNote('Could not load shared data. Check Supabase policies.');
+        return;
+      }
+
+      scoreA = Number(data.scoreA ?? 0);
+      scoreB = Number(data.scoreB ?? 0);
+      pairings = normalizePairings(data.pairings);
+      results = normalizeResults(data.results);
+      updateScoreDisplay();
+      renderPairings();
+      switchCourse(activeCourse);
+      setSaveNote('Live data loaded.');
+    }
+
+    function normalizePairings(value){
+      const defaults = emptyPairings();
+      if(!value || Array.isArray(value)) return defaults;
+      return {
+        sand:Array.isArray(value.sand) ? value.sand : defaults.sand,
+        ledges:Array.isArray(value.ledges) ? value.ledges : defaults.ledges,
+        wolf:Array.isArray(value.wolf) ? value.wolf : defaults.wolf
+      };
+    }
+
+    function normalizeResults(value){
+      const defaults = emptyResults();
+      if(!value || Array.isArray(value)) return defaults;
+      return {
+        sand:Array.isArray(value.sand) ? value.sand : defaults.sand,
+        ledges:Array.isArray(value.ledges) ? value.ledges : defaults.ledges,
+        wolf:Array.isArray(value.wolf) ? value.wolf : defaults.wolf
+      };
+    }
+
+    async function saveTournamentState(message='Saved ✓'){
+      if(!isAdmin){
+        alert('Admin login is required to make changes.');
+        await loadTournamentState();
+        return false;
+      }
+
+      setSaveNote('Saving…');
+      const { error } = await db
+        .from('tournament')
+        .update({
+          scoreA,
+          scoreB,
+          pairings,
+          results
+        })
+        .eq('id', TOURNAMENT_ID);
+
+      if(error){
+        console.error('Supabase save error:', error);
+        setSaveNote(`Save failed: ${error.message}`);
+        return false;
+      }
+
+      setSaveNote(message);
+      return true;
+    }
+
+    function scheduleSave(message='Saved ✓'){
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(()=>saveTournamentState(message), 250);
+    }
+
+    async function addPoint(team,val){
+      if(!isAdmin) return alert('Admin login is required to update the score.');
+      if(team==='A') scoreA += val;
+      else scoreB += val;
+      updateScoreDisplay();
+      await saveTournamentState('Score saved ✓');
+    }
+
+    async function resetScores(){
+      if(!isAdmin) return alert('Admin login is required to reset the score.');
+      if(!confirm('Reset both team scores to zero?')) return;
+      scoreA=0;
+      scoreB=0;
+      updateScoreDisplay();
+      await saveTournamentState('Scores reset.');
+    }
 
     function resultOptions(selected){
       return [['','Not entered'],['one','The Utes'],['two','Team Analea Clark'],['tie','Tied']].map(([v,l])=>`<option value="${v}" ${selected===v?'selected':''}>${l}</option>`).join('');
     }
+
     function pointsFor(value,weight){
       return value==='one'?[weight,0]:
              value==='two'?[0,weight]:
              value==='tie'?[weight/2,weight/2]:
              [0,0];
     }
+
     function matchPoints(course,mi){
       const r=results[course][mi]; let a=0,b=0;
-      [['front',0.5],['back',0.5],['overall',1]].forEach(([field,weight])=>{const p=pointsFor(r[field],weight);a+=p[0];b+=p[1]});
+      [['front',0.5],['back',0.5],['overall',1]].forEach(([field,weight])=>{
+        const p=pointsFor(r[field],weight);
+        a+=p[0];
+        b+=p[1];
+      });
       if(course==='wolf'&&r.double){a*=2;b*=2}
       return [a,b];
     }
+
     function resultSummary(course,mi){
       const r=results[course][mi], p=matchPoints(course,mi);
       const entered=[r.front,r.back,r.overall].filter(Boolean).length;
@@ -313,25 +478,44 @@
       if(course==='wolf'&&r.double) text+=' · Double-point match';
       return text;
     }
-    function updateResult(course,mi,field,value){
+
+    async function updateResult(course,mi,field,value){
+      if(!isAdmin) return alert('Admin login is required to update results.');
       results[course][mi][field]=field==='double'?value==='true':value;
-      localStorage.setItem('desertCupResults',JSON.stringify(results));
-      const active=course; renderPairings(); switchCourse(active);
-      const note=document.getElementById('pairingsSaveNote'); note.textContent='Result saved ✓'; setTimeout(()=>note.textContent='Pairings and results save automatically on this device.',1200);
+      activeCourse=course;
+      renderPairings();
+      switchCourse(activeCourse);
+      scheduleSave('Result saved ✓');
     }
-    function syncResultsToCup(){
-      let a=0,b=0; Object.keys(results).forEach(c=>results[c].forEach((_,mi)=>{const p=matchPoints(c,mi);a+=p[0];b+=p[1]}));
-      scoreA=a;scoreB=b;render();
-      document.getElementById('pairingsSaveNote').textContent=`Live cup updated: ${a} – ${b}`;
+
+    async function syncResultsToCup(){
+      if(!isAdmin) return alert('Admin login is required.');
+      let a=0,b=0;
+      Object.keys(results).forEach(c=>results[c].forEach((_,mi)=>{
+        const p=matchPoints(c,mi);
+        a+=p[0];
+        b+=p[1];
+      }));
+      scoreA=a;
+      scoreB=b;
+      updateScoreDisplay();
+      await saveTournamentState(`Live cup updated: ${a} – ${b}`);
     }
-    function resetResults(){
-      results=emptyResults(); localStorage.removeItem('desertCupResults'); renderPairings();
-      document.getElementById('pairingsSaveNote').textContent='All match results cleared.';
+
+    async function resetResults(){
+      if(!isAdmin) return alert('Admin login is required.');
+      if(!confirm('Clear every recorded match result?')) return;
+      results=emptyResults();
+      renderPairings();
+      switchCourse(activeCourse);
+      await saveTournamentState('All match results cleared.');
     }
 
     function playerOptions(selected, course, matchIndex, slotIndex){
       const used = new Set();
-      pairings[course].forEach((match,mi)=>match.forEach((name,si)=>{if(name && !(mi===matchIndex && si===slotIndex)) used.add(name)}));
+      pairings[course].forEach((match,mi)=>match.forEach((name,si)=>{
+        if(name && !(mi===matchIndex && si===slotIndex)) used.add(name);
+      }));
       return `<option value="">Select player</option>` + players.map(p=>{
         const disabled = used.has(p.name) && p.name!==selected;
         return `<option value="${p.name}" ${p.name===selected?'selected':''} ${disabled?'disabled':''}>${p.name} (${p.nickname})</option>`;
@@ -340,7 +524,7 @@
 
     function renderPairings(){
       const container=document.getElementById('pairingsContainer');
-      container.innerHTML=Object.entries(courseInfo).map(([key,info])=>`<div class="pairing-course ${key==='sand'?'active':''}" data-panel="${key}">
+      container.innerHTML=Object.entries(courseInfo).map(([key,info])=>`<div class="pairing-course ${key===activeCourse?'active':''}" data-panel="${key}">
         <div style="margin-bottom:16px"><strong style="font-size:1.25rem">${info.title}</strong><div style="color:#cdbfae;margin-top:3px">${info.subtitle}</div></div>
         <div class="pairing-grid">${pairings[key].map((m,mi)=>`<div class="pairing-card"><h3>Match ${String.fromCharCode(65+mi)}</h3>
           <div class="side-label">The Utes</div>
@@ -367,24 +551,109 @@
       </div>`).join('');
       document.querySelectorAll('.course-tab').forEach(btn=>btn.onclick=()=>switchCourse(btn.dataset.course));
     }
+
     function switchCourse(course){
+      activeCourse=course;
       document.querySelectorAll('.course-tab').forEach(b=>b.classList.toggle('active',b.dataset.course===course));
       document.querySelectorAll('.pairing-course').forEach(p=>p.classList.toggle('active',p.dataset.panel===course));
     }
-    function setPairing(course,matchIndex,slotIndex,value){
+
+    async function setPairing(course,matchIndex,slotIndex,value){
+      if(!isAdmin) return alert('Admin login is required to update pairings.');
       pairings[course][matchIndex][slotIndex]=value;
-      localStorage.setItem('stGeorgeOpenPairingsV2',JSON.stringify(pairings));
-      const active=course;
+      activeCourse=course;
       renderPairings();
-      switchCourse(active);
-      const note=document.getElementById('pairingsSaveNote'); note.textContent='Saved ✓'; setTimeout(()=>note.textContent='Changes save automatically.',1200);
+      switchCourse(activeCourse);
+      scheduleSave('Pairing saved ✓');
     }
-    function resetPairings(){
+
+    async function resetPairings(){
+      if(!isAdmin) return alert('Admin login is required.');
+      if(!confirm('Reset all pairings to the defaults?')) return;
       pairings=emptyPairings();
-      localStorage.removeItem('stGeorgeOpenPairingsV2');
       renderPairings();
+      switchCourse(activeCourse);
+      await saveTournamentState('All pairings reset.');
     }
-    renderPairings();
+
+    function updateAdminUI(session){
+      isAdmin=Boolean(session?.user);
+      document.body.classList.toggle('is-admin',isAdmin);
+      document.getElementById('adminStatus').textContent=isAdmin ? `Admin: ${session.user.email}` : 'Public view';
+      document.getElementById('adminLoginBtn').style.display=isAdmin?'none':'inline-block';
+      document.getElementById('adminLogoutBtn').style.display=isAdmin?'inline-block':'none';
+      renderPairings();
+      switchCourse(activeCourse);
+    }
+
+    const authModal=document.getElementById('authModal');
+    const authError=document.getElementById('authError');
+
+    function openLogin(){
+      authError.textContent='';
+      authModal.classList.add('open');
+      authModal.setAttribute('aria-hidden','false');
+      setTimeout(()=>document.getElementById('adminEmail').focus(),50);
+    }
+
+    function closeLogin(){
+      authModal.classList.remove('open');
+      authModal.setAttribute('aria-hidden','true');
+      document.getElementById('adminPassword').value='';
+    }
+
+    async function submitLogin(){
+      authError.textContent='Signing in…';
+      const email=document.getElementById('adminEmail').value.trim();
+      const password=document.getElementById('adminPassword').value;
+      const { data, error }=await db.auth.signInWithPassword({email,password});
+      if(error){
+        authError.textContent=error.message;
+        return;
+      }
+      updateAdminUI(data.session);
+      closeLogin();
+      await loadTournamentState();
+    }
+
+    document.getElementById('adminLoginBtn').addEventListener('click',openLogin);
+    document.getElementById('cancelLoginBtn').addEventListener('click',closeLogin);
+    document.getElementById('submitLoginBtn').addEventListener('click',submitLogin);
+    document.getElementById('adminLogoutBtn').addEventListener('click',async()=>{
+      await db.auth.signOut();
+      updateAdminUI(null);
+      await loadTournamentState();
+    });
+    authModal.addEventListener('click',e=>{if(e.target===authModal)closeLogin();});
+    document.getElementById('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')submitLogin();});
+
+    db.auth.onAuthStateChange((_event,session)=>updateAdminUI(session));
+
+    db.channel('tournament-live')
+      .on('postgres_changes',{
+        event:'UPDATE',
+        schema:'public',
+        table:'tournament',
+        filter:`id=eq.${TOURNAMENT_ID}`
+      },payload=>{
+        const row=payload.new;
+        scoreA=Number(row.scoreA ?? 0);
+        scoreB=Number(row.scoreB ?? 0);
+        pairings=normalizePairings(row.pairings);
+        results=normalizeResults(row.results);
+        updateScoreDisplay();
+        renderPairings();
+        switchCourse(activeCourse);
+        setSaveNote('Live update received.');
+      })
+      .subscribe();
+
+    (async function init(){
+      const {data:{session}}=await db.auth.getSession();
+      updateAdminUI(session);
+      await loadTournamentState();
+      setInterval(loadTournamentState,30000);
+    })();
   </script>
 </body>
 </html>
