@@ -211,7 +211,7 @@
       <div class="container">
         <div class="section-head">
           <div><div class="kicker">Captain's Room</div><h2>Build the Pairings</h2></div>
-          <p class="section-copy">The proposed 11-player matchups are loaded below, including one individual match and one sitting player each day. Changes save to the shared tournament database.</p>
+          <p class="section-copy">Pairings and match results below are stored in the shared tournament database. Admin changes are visible to everyone on the site.</p>
         </div>
         <div class="pairings-shell">
           <div class="course-tabs">
@@ -340,6 +340,45 @@
       wolf:Array.from({length:3},()=>({status:'scheduled',front:'',back:'',overall:'',margin:'',notes:'',double:false}))
     });
 
+    const matchRowId = (course, matchIndex) => `${course}-${matchIndex + 1}`;
+
+    async function loadMatches(){
+      const { data, error } = await db.from('matches').select('*').order('sort_order',{ascending:true});
+      if(error){
+        console.error('Supabase matches load error:', error);
+        setSaveNote('Could not load pairings/results. Check the matches table and policies.');
+        renderPairings(); switchCourse(activeCourse); return;
+      }
+      const p = emptyPairings();
+      const r = emptyResults();
+      if(Array.isArray(data) && data.length){
+        data.forEach(row=>{
+          const c=row.course_key, mi=Number(row.match_number)-1;
+          if(!p[c] || mi<0 || mi>2) return;
+          p[c][mi]=[row.utes_player_1||'',row.utes_player_2||'',row.analea_player_1||'',row.analea_player_2||''];
+          r[c][mi]={status:row.status||'scheduled',front:row.front_winner||'',back:row.back_winner||'',overall:row.overall_winner||'',margin:row.margin||'',notes:row.notes||'',double:Boolean(row.double_points)};
+          if(row.sitting_player && courseMeta[c]) courseMeta[c].sitting=row.sitting_player;
+        });
+      }
+      pairings=p; results=r; renderPairings(); switchCourse(activeCourse);
+    }
+
+    async function saveMatch(course,matchIndex,message='Saved ✓'){
+      if(!isAdmin){ alert('Admin login is required to make changes.'); await loadMatches(); return false; }
+      const m=pairings[course][matchIndex], r=results[course][matchIndex];
+      setSaveNote('Saving…');
+      const { error } = await db.from('matches').update({
+        utes_player_1:m[0]||null, utes_player_2:m[1]||null,
+        analea_player_1:m[2]||null, analea_player_2:m[3]||null,
+        sitting_player:courseMeta[course]?.sitting||null,
+        status:r.status||'scheduled',
+        front_winner:r.front||null, back_winner:r.back||null, overall_winner:r.overall||null,
+        margin:r.margin||null, notes:r.notes||null, double_points:Boolean(r.double)
+      }).eq('id',matchRowId(course,matchIndex));
+      if(error){ console.error(error); setSaveNote(`Save failed: ${error.message}`); return false; }
+      setSaveNote(message); return true;
+    }
+
     let scoreA = 0;
     let scoreB = 0;
     let pairings = emptyPairings();
@@ -370,7 +409,7 @@
       setSaveNote('Loading shared tournament data…');
       const { data, error } = await db
         .from('tournament')
-        .select('scoreA,scoreB,pairings,results')
+        .select('scoreA,scoreB')
         .eq('id', TOURNAMENT_ID)
         .single();
 
@@ -382,11 +421,8 @@
 
       scoreA = Number(data.scoreA ?? 0);
       scoreB = Number(data.scoreB ?? 0);
-      pairings = normalizePairings(data.pairings);
-      results = normalizeResults(data.results);
       updateScoreDisplay();
-      renderPairings();
-      switchCourse(activeCourse);
+      await loadMatches();
       setSaveNote('Live data loaded.');
     }
 
@@ -423,12 +459,7 @@
       setSaveNote('Saving…');
       const { error } = await db
         .from('tournament')
-        .update({
-          scoreA,
-          scoreB,
-          pairings,
-          results
-        })
+        .update({ scoreA, scoreB })
         .eq('id', TOURNAMENT_ID);
 
       if(error){
@@ -501,7 +532,7 @@
       activeCourse=course;
       renderPairings();
       switchCourse(activeCourse);
-      scheduleSave('Result saved ✓');
+      await saveMatch(course, mi, 'Result saved ✓');
     }
 
     async function syncResultsToCup(){
@@ -524,7 +555,8 @@
       results=emptyResults();
       renderPairings();
       switchCourse(activeCourse);
-      await saveTournamentState('All match results cleared.');
+      for(const course of Object.keys(results)) for(let mi=0;mi<3;mi++) await saveMatch(course,mi,'Clearing results…');
+      setSaveNote('All match results cleared.');
     }
 
     function playerOptions(selected, course, matchIndex, slotIndex){
@@ -588,7 +620,7 @@
       activeCourse=course;
       renderPairings();
       switchCourse(activeCourse);
-      scheduleSave('Pairing saved ✓');
+      await saveMatch(course, matchIndex, 'Pairing saved ✓');
     }
 
     async function resetPairings(){
@@ -597,7 +629,8 @@
       pairings=emptyPairings();
       renderPairings();
       switchCourse(activeCourse);
-      await saveTournamentState('All pairings reset.');
+      for(const course of Object.keys(pairings)) for(let mi=0;mi<3;mi++) await saveMatch(course,mi,'Resetting pairings…');
+      setSaveNote('All pairings reset.');
     }
 
     function updateAdminUI(session){
@@ -663,12 +696,18 @@
         const row=payload.new;
         scoreA=Number(row.scoreA ?? 0);
         scoreB=Number(row.scoreB ?? 0);
-        pairings=normalizePairings(row.pairings);
-        results=normalizeResults(row.results);
         updateScoreDisplay();
-        renderPairings();
-        switchCourse(activeCourse);
-        setSaveNote('Live update received.');
+      })
+      .subscribe();
+
+    db.channel('matches-live')
+      .on('postgres_changes',{
+        event:'UPDATE',
+        schema:'public',
+        table:'matches'
+      },async ()=>{
+        await loadMatches();
+        setSaveNote('Live matchup update received.');
       })
       .subscribe();
 
